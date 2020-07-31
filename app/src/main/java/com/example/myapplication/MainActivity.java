@@ -70,15 +70,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
-    
+
 
         private void showList() {
-            ArrayList<String> deviceList = new ArrayList<>();
+            ArrayList<Devices> deviceList = new ArrayList<>();
 
 
            if (devices.size() > 0) {
                 for (BluetoothDevice currentDevice : devices) {
-                   deviceList.add(currentDevice.getName());
+                   deviceList.add(new Devices(currentDevice.getName(),currentDevice));
                 }
 
                 DeviceAdapter adapter = new DeviceAdapter(deviceList, MainActivity.this);
@@ -121,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         unregisterReceiver(mReceiver);
-
         super.onDestroy();
     }
             }

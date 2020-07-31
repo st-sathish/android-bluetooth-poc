@@ -1,16 +1,19 @@
 package com.example.myapplication;
 
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.RadioButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -18,29 +21,12 @@ import java.util.ArrayList;
 public class DeviceAdapter extends
         RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
 
-    private ArrayList<String> devices;
+    private ArrayList<Devices> devices;
     Context context;
 
-    DeviceAdapter(ArrayList<String> deviceList, Context context){
+    DeviceAdapter(ArrayList<Devices> deviceList, Context context){
         this.context = context;
         devices = deviceList;
-        // added for testing purpose
-        devices.add("From this fake");
-        devices.add("Redmi");
-        devices.add("Oppo");
-        devices.add("Vivo");
-        devices.add("Samsung");
-        devices.add("Nokia");
-        devices.add("Asus");
-        devices.add("Realme");
-        devices.add("I phone");
-        devices.add("I phone2");
-        devices.add("I phone3");
-        devices.add("I phone4");
-        devices.add("I phone5");
-        devices.add("I phone6");
-        devices.add("I phone7");
-        // added for testing purpose
     }
 
 
@@ -60,9 +46,9 @@ public class DeviceAdapter extends
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        String device = devices.get(position);
+       Devices device = devices.get(position);
         RadioButton deviceRadio = holder.deviceName;
-        deviceRadio.setText(device);
+        deviceRadio.setText(device.deviceName);
     }
 
 
@@ -93,14 +79,31 @@ public class DeviceAdapter extends
 
         }
         public void pairDialogBox(){
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage("Do you want to pair with "+deviceName.getText());
-            builder.setTitle("Welcome!");
+            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            final boolean[] n = new boolean[1];
+            EditText input = new EditText(context);
+           final BluetoothDevice[] targetDevice = new BluetoothDevice[1];
+            builder.setView(input);
+            builder.setTitle("Pair!");
             builder.setCancelable(false);
             builder.setPositiveButton("Pair", new DialogInterface.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
+                    for (Devices device : devices) {
+                      if(deviceName.getText().equals(device.deviceName)) {
+                          targetDevice[0] = device.device;
+                          break;
+                      }
+                    }
+                    if(targetDevice[0] !=null) {
+                        n[0] = targetDevice[0].createBond();
+                        Toast.makeText(context, " " + n[0] + " " + targetDevice[0].getName(), Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        Toast.makeText(context,"null",Toast.LENGTH_LONG).show();
+                    }
                     dialog.cancel();
                 }
             });
