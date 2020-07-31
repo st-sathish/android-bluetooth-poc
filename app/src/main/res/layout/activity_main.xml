@@ -20,11 +20,35 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="Scan for devices" />
-        <ListView
-            android:id="@+id/listView"
-            android:layout_width="wrap_content"
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_below="@id/button"/>
+            android:paddingTop="15dp"
+            android:orientation="vertical"
+            android:layout_below="@id/button">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="15dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+         />
+        </RadioGroup>
+        <ProgressBar
+            android:id="@+id/progressBar1"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/button"
+          android:textAlignment="center"
+            android:visibility="gone"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"/>
+
+
+
+
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,8 +1,11 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
@@ -13,10 +16,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -30,44 +35,55 @@ public class MainActivity extends AppCompatActivity {
     BroadcastReceiver mReceiver;
     ArrayList<BluetoothDevice> devices = new ArrayList<>();
     ListView listView;
-@Override
+    RecyclerView listDevices;
+    ProgressBar spinner;
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    listDevices = (RecyclerView) findViewById(R.id.recyclerView);
     scan=(Button) findViewById(R.id.button);
     ba = BluetoothAdapter.getDefaultAdapter();
-    listView =(ListView) findViewById(R.id.listView);
+    spinner = (ProgressBar)findViewById(R.id.progressBar1);
+
     final int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
     mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-                Toast.makeText(getApplicationContext(), "Discover starts ", Toast.LENGTH_LONG).show();
+                spinner.setVisibility(View.VISIBLE);
+                listDevices.setVisibility(View.GONE);
+
                 //discovery starts, we can show progress dialog or perform other tasks
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                Toast.makeText(getApplicationContext(), "Discover stops", Toast.LENGTH_LONG).show();
+                spinner.setVisibility(View.GONE);
+                listDevices.setVisibility(View.VISIBLE);
+                showList();
                 //discovery finishes, dismis progress dialog
             } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 //bluetooth device found
 
                 BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 devices.add(device);
-                play();
+
 
             }
         }
+    
 
-        private void play() {
+        private void showList() {
             ArrayList<String> deviceList = new ArrayList<>();
 
 
-            if (devices.size() > 0) {
+           if (devices.size() > 0) {
                 for (BluetoothDevice currentDevice : devices) {
-                    deviceList.add("Device Name: " + currentDevice.getName() + "\nDevice Address: " + currentDevice.getAddress());
-                    listView.setAdapter(new ArrayAdapter<>(getApplication(),
-                            android.R.layout.simple_list_item_1, deviceList));
+                   deviceList.add(currentDevice.getName());
                 }
+
+                DeviceAdapter adapter = new DeviceAdapter(deviceList, MainActivity.this);
+                listDevices.setAdapter(adapter);
+                listDevices.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         }
         }
 
