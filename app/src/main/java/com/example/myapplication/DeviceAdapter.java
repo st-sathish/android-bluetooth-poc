@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,9 +61,7 @@ public class DeviceAdapter extends
     public class ViewHolder extends RecyclerView.ViewHolder  {
 
         public RadioButton deviceName;
-
-
-
+        final BluetoothDevice[] targetDevice = new BluetoothDevice[1];
 
         public ViewHolder(View itemView) {
 
@@ -72,7 +71,22 @@ public class DeviceAdapter extends
             deviceName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    pairDialogBox();
+                    for (Devices device : devices) {
+                        if(deviceName.getText().equals(device.deviceName)) {
+                            targetDevice[0] = device.device;
+                            break;
+                        }
+                    }
+                    if(targetDevice[0] !=null) {
+                        if (targetDevice[0].getBondState() != BluetoothDevice.BOND_BONDED) {
+                            pairDialogBox();
+                        }
+                        else {
+                            connectDialogBox();
+                        }
+                    }
+
+
                 }
             });
 
@@ -82,7 +96,7 @@ public class DeviceAdapter extends
             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
             final boolean[] n = new boolean[1];
             EditText input = new EditText(context);
-           final BluetoothDevice[] targetDevice = new BluetoothDevice[1];
+
             builder.setView(input);
             builder.setTitle("Pair!");
             builder.setCancelable(false);
@@ -90,22 +104,9 @@ public class DeviceAdapter extends
                 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
-                    for (Devices device : devices) {
-                      if(deviceName.getText().equals(device.deviceName)) {
-                          targetDevice[0] = device.device;
-                          break;
-                      }
+                           targetDevice[0].createBond();
+                           connectDialogBox();
                     }
-                    if(targetDevice[0] !=null) {
-                        n[0] = targetDevice[0].createBond();
-                        Toast.makeText(context, " " + n[0] + " " + targetDevice[0].getName(), Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        Toast.makeText(context,"null",Toast.LENGTH_LONG).show();
-                    }
-                    dialog.cancel();
-                }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
@@ -114,6 +115,42 @@ public class DeviceAdapter extends
                                     dialog.cancel();
                                 }
                             });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
+
+        public void connectDialogBox(){
+            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            final boolean[] n = new boolean[1];
+            EditText input = new EditText(context);
+
+            builder.setView(input);
+            builder.setTitle("Connect!");
+            builder.setCancelable(false);
+            builder.setPositiveButton("Connect", new DialogInterface.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                            ConnectThread conn = new ConnectThread(targetDevice[0]);
+                            conn.run();
+                            Intent i = new Intent(context,MainActivity2.class);
+                            context.startActivity(i);
+                    try {
+                        conn.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    deviceName.setChecked(false);
+                    dialog.cancel();
+                }
+            });
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
         }

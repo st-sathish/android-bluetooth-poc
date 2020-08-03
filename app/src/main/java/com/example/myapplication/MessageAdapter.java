@@ -36,7 +36,9 @@ public class MessageAdapter extends
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
+        String mesg = msg.get(position);
+        TextView textView = holder.message;
+        textView.setText(mesg);
 
     }
 

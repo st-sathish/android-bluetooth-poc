@@ -12,9 +12,14 @@
 
     <TextView
         android:id="@+id/messages"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
+        android:background="#d2fbfc"
         android:layout_height="wrap_content"
-        android:textSize="15sp"
+        android:paddingLeft="10sp"
+        android:paddingRight="10sp"
+        android:paddingTop="7sp"
+        android:paddingBottom="7sp"
+        android:textSize="18sp"
         />
 
 </LinearLayout>

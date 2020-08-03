@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
  BluetoothAdapter ba;
  Button scan;
     BroadcastReceiver mReceiver;
-    ArrayList<BluetoothDevice> devices = new ArrayList<>();
+    ArrayList<BluetoothDevice> devices ;
     ListView listView;
     RecyclerView listDevices;
     ProgressBar spinner;
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             String action = intent.getAction();
 
             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                devices = new ArrayList<>();
                 spinner.setVisibility(View.VISIBLE);
                 listDevices.setVisibility(View.GONE);
 
