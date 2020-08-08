@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,6 +17,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -30,21 +34,28 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
- BluetoothAdapter ba;
- Button scan;
+    BluetoothAdapter ba;
+    Button scan;
     BroadcastReceiver mReceiver;
     ArrayList<BluetoothDevice> devices ;
     ListView listView;
     RecyclerView listDevices;
     ProgressBar spinner;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
-    listDevices = (RecyclerView) findViewById(R.id.recyclerView);
-    scan=(Button) findViewById(R.id.button);
-    ba = BluetoothAdapter.getDefaultAdapter();
-    spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        //getting the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setting the title
+        toolbar.setTitle("My Toolbar");
+        //placing toolbar in place of actionbar
+        setSupportActionBar(toolbar);
+        listDevices = (RecyclerView) findViewById(R.id.recyclerView);
+        scan=(Button) findViewById(R.id.button);
+        ba = BluetoothAdapter.getDefaultAdapter();
+        spinner = (ProgressBar)findViewById(R.id.progressBar1);
 
     final int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
     mReceiver = new BroadcastReceiver() {
@@ -114,16 +125,30 @@ public class MainActivity extends AppCompatActivity {
         }
     });
 
-
-
-
-
 }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_search:
+                Toast.makeText(this, "You clicked about", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
     @Override
     public void onDestroy() {
         unregisterReceiver(mReceiver);
         super.onDestroy();
     }
-            }
+}
 
 
