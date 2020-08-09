@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -44,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     RecyclerView listDevices;
     ProgressBar spinner;
+    MenuItem mView;
+    private static final int BLUETOOTH_REQUEST_CODE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +63,10 @@ public class MainActivity extends AppCompatActivity {
         scan=(Button) findViewById(R.id.button);
         ba = BluetoothAdapter.getDefaultAdapter();
         spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        enableBluetooth();
+        //initReceiver();
 
-    final int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
+    /*final int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
     mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -102,11 +108,9 @@ public class MainActivity extends AppCompatActivity {
         }
         }
 
-    };
-    Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-    startActivityForResult(turnOn, 0);
+    };*/
 
-    scan.setOnClickListener(new View.OnClickListener() {
+    /*scan.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             IntentFilter filter = new IntentFilter();
@@ -126,19 +130,78 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
-    });
+    });*/
+    }
 
-}
+    public void initReceiver() {
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+                if (action != null && action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                    final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                        switch (state) {
+                            case BluetoothAdapter.STATE_OFF:
+                                // Bluetooth has been turned off;
+                                enableBluetooth();
+                                break;
+                            case BluetoothAdapter.STATE_TURNING_OFF:
+                                // Bluetooth is turning off;
+                                break;
+                            case BluetoothAdapter.STATE_ON:
+                                // Bluetooth is on
+                                break;
+                            case BluetoothAdapter.STATE_TURNING_ON:
+                                // Bluetooth is turning on
+                                break;
+                        }
+                }
+            }
+        };
+        // Register for broadcasts on BluetoothAdapter state change
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(mReceiver, filter);
+    }
+
+    public void enableBluetooth() {
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter.isEnabled()) {
+            return;
+        }
+        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(enableBtIntent, BLUETOOTH_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            case BLUETOOTH_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    mView.setVisible(true);
+                    Toast.makeText(this, "Bluetooth enabled success", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Toast.makeText(this, "Bluetooth not enabled", Toast.LENGTH_LONG).show();
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+                break;
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_search:
-                Toast.makeText(this, "You clicked about", Toast.LENGTH_SHORT).show();
-                showDialog();
+                startSearchActivity();
                 break;
         }
         return true;
+    }
+
+    private void startSearchActivity() {
+        Intent intent = new Intent(MainActivity.this, SearchBluetoothDeviceActivity.class);
+        startActivity(intent);
     }
 
     void showDialog() {
@@ -157,12 +220,22 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+        mView  = menu.findItem(R.id.menu_search);
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter.isEnabled()) {
+            mView.setVisible(true);
+        }
         return true;
     }
 
     @Override
-    public void onDestroy() {
+    public void onStop() {
+        super.onStop();
         unregisterReceiver(mReceiver);
+    }
+
+    @Override
+    public void onDestroy() {
         super.onDestroy();
     }
 }
