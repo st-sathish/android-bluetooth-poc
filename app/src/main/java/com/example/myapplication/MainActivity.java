@@ -59,10 +59,10 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTitle("My Toolbar");
         //placing toolbar in place of actionbar
         setSupportActionBar(toolbar);
-        listDevices = (RecyclerView) findViewById(R.id.recyclerView);
+        /*listDevices = (RecyclerView) findViewById(R.id.recyclerView);
         scan=(Button) findViewById(R.id.button);
         ba = BluetoothAdapter.getDefaultAdapter();
-        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        spinner = (ProgressBar)findViewById(R.id.progressBar1);*/
         enableBluetooth();
         //initReceiver();
 
@@ -226,12 +226,6 @@ public class MainActivity extends AppCompatActivity {
             mView.setVisible(true);
         }
         return true;
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        unregisterReceiver(mReceiver);
     }
 
     @Override

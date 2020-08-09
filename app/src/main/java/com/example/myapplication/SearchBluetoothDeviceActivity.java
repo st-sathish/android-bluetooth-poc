@@ -30,6 +30,7 @@ public class SearchBluetoothDeviceActivity extends AppCompatActivity {
     BluetoothAdapter ba;
     BroadcastReceiver mReceiver;
     ProgressBar spinner;
+    private List<BluetoothDevice> devices;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +54,15 @@ public class SearchBluetoothDeviceActivity extends AppCompatActivity {
                 final String action = intent.getAction();
                 if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                     //discovery starts, we can show progress dialog or perform other tasks
+                    devices = new ArrayList<>();
                     spinner.setVisibility(View.VISIBLE);
                 } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                     //discovery finishes, dismiss progress dialog
-                    spinner.setVisibility(View.GONE);
+                    //spinner.setVisibility(View.GONE);
                 } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     //bluetooth device found
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    devices.add(device);
                 }
             }
         };
@@ -120,5 +124,14 @@ public class SearchBluetoothDeviceActivity extends AppCompatActivity {
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
                 break;
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(mReceiver == null){
+            return;
+        }
+        unregisterReceiver(mReceiver);
     }
 }
